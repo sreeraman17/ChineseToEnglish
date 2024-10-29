@@ -4,7 +4,7 @@
 
 ## 🎯 What's This All About?
 
-Say goodbye to language barriers! Our Chinese to English PDF Translator is your magical bridge between Chinese documents and English understanding. With a sleek web interface that's as easy as drag-and-drop, you'll be translating documents faster than you can say "你好"!
+A comprehensive web application that provides high-quality Chinese to English translation using the Qwen 2.5 model. With a sleek web interface that's as easy as drag-and-drop.
 
 ## Screenshot
 
@@ -12,12 +12,12 @@ Say goodbye to language barriers! Our Chinese to English PDF Translator is your 
 
 ### ✨ Key Features
 
-- 🎭 **Drag & Drop Magic**: Toss your PDFs into our translator like a boss
+- 🎭 **Drag & Drop**: Toss your PDFs into our translator like a boss
 - 📊 **Live Progress Tracking**: Watch your translation come to life in real-time
 - 💫 **Smart Text Panels**: Edit both Chinese and English text on the fly
 - 📋 **Copy with Style**: One-click copying for both languages
 - 💾 **Download & Go**: Save your translations instantly
-- 🔔 **Smart Notifications**: We'll keep you in the loop every step of the way
+- 🔔 **Smart Notifications**: We'll keep you in the loop every step of the way with progress bar
 
 ## 🏗️ Under the Hood
 
