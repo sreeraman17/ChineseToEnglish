@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese PDF Translator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #6366F1;
+            --success-color: #22C55E;
+            --error-color: #EF4444;
+            --background-color: #F9FAFB;
+            --text-color: #1F2937;
+            --border-color: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background: #F3F4F6;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.active {
+            background: #DCFCE7;
+            color: var(--success-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9CA3AF;
+            transition: background-color 0.3s ease;
+        }
+
+        .status-indicator.active .status-dot {
+            background: var(--success-color);
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border: 2px dashed var(--border-color);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: #F5F3FF;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background: #F5F3FF;
+            transform: scale(1.02);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #F9FAFB;
+            transform: translateY(-1px);
+        }
+
+        .progress-container {
+            display: none;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .progress-bar {
+            height: 0.5rem;
+            background: #E5E7EB;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .translation-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .text-panel {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            position: relative;
+        }
+
+        .text-panel h2 {
+            font-size: 1.25rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .text-content {
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            background: #FAFAFA;
+        }
+
+        .text-content:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: -2px;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .system-ready {
+            background: #DCFCE7;
+            color: var(--success-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .translation-container {
+                grid-template-columns: 1fr;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-language"></i>
+                Chinese PDF Translator
+            </h1>
+            <div class="system-ready" id="systemStatus">
+                <i class="fas fa-circle"></i>
+                System Ready
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator" id="uploadStatus">
+                <span class="status-dot"></span>
+                File Upload
+            </div>
+            <div class="status-indicator" id="processingStatus">
+                <span class="status-dot"></span>
+                Processing
+            </div>
+            <div class="status-indicator" id="completeStatus">
+                <span class="status-dot"></span>
+                Complete
+            </div>
+        </div>
+
+        <div class="upload-area" id="dropZone">
+            <i class="fas fa-cloud-upload-alt fa-3x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
+            <p>Drag and drop your PDF here or click to select</p>
+        </div>
+
+        <div class="button-group">
+            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('pdfFile').click()">
+                <i class="fas fa-file-pdf"></i>
+                Choose PDF
+            </button>
+            <button class="btn btn-primary" onclick="uploadPDF()" id="uploadBtn">
+                <i class="fas fa-upload"></i>
+                Upload & Translate
+            </button>
+            <button class="btn btn-secondary" onclick="downloadTranslation()" id="downloadBtn" style="display: none;">
+                <i class="fas fa-download"></i>
+                Download Result
+            </button>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <p id="progressText">Processing document...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="translation-container">
+            <div class="text-panel">
+                <h2>
+                    <i class="fas fa-file-alt"></i>
+                    Original Chinese Text
+                </h2>
+                <div class="text-content" id="chineseText" contenteditable="true"></div>
+            </div>
+            <div class="text-panel">
+                <h2>
+                    <i class="fas fa-language"></i>
+                    English Translation
+                </h2>
+                <div class="text-content" id="englishText" contenteditable="true"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        let currentTranslation = null;
+        const dropZone = document.getElementById('dropZone');
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            document.getElementById('pdfFile').files = files;
+            showNotification('File selected: ' + files[0].name);
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = isError ? '#EF4444' : '#10B981';
+            notification.style.color = 'white';
+            notification.style.display = 'block';
+            notification.style.zIndex = '1000';
+            
+            // Log to console as well
+            if (isError) {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateStatus(stage) {
+            const uploadStatus = document.getElementById('uploadStatus');
+            const processingStatus = document.getElementById('processingStatus');
+            const completeStatus = document.getElementById('completeStatus');
+            
+            [uploadStatus, processingStatus, completeStatus].forEach(status => {
+                status.classList.remove('active');
+            });
+
+            switch(stage) {
+                case 'upload':
+                    uploadStatus.classList.add('active');
+                    break;
+                case 'processing':
+                    uploadStatus.classList.add('active');
+                    processingStatus.classList.add('active');
+                    break;
+                case 'complete':
+                    uploadStatus.classList.add('active');
+                    processingStatus.classList.add('active');
+                    completeStatus.classList.add('active');
+                    break;
+            }
+        }
+
+        function updateProgress(progress) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            progressContainer.style.display = 'block';
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `Processing document... ${Math.round(progress)}%`;
+        }
+
+        function uploadPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showNotification('Please select a PDF file first', true);
+                return;
+            }
+
+            console.log('Starting upload for file:', file.name);
+            updateStatus('upload');
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.style.display = 'block';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+
+            updateProgress(0);
+            updateStatus('processing');
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json().then(data => {
+                    // ... continuing from the previous fetch response handling ...
+                    if (!response.ok) {
+                        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                    }
+                    return data;
+                });
+            })
+            .then(data => {
+                console.log('Translation successful, data received');
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                currentTranslation = data;
+                displayTexts(data.original, data.translated);
+                updateProgress(100);
+                updateStatus('complete');
+                document.getElementById('downloadBtn').style.display = 'inline-flex';
+                showNotification('Translation completed successfully');
+            })
+            .catch(error => {
+                console.error('Translation error:', error);
+                showNotification(`Error: ${error.message || 'An error occurred during translation'}`, true);
+                updateProgress(0);
+                updateStatus('upload');  // Reset status
+            });
+        }
+
+        function displayTexts(original, translated) {
+            const chineseDiv = document.getElementById('chineseText');
+            const englishDiv = document.getElementById('englishText');
+            
+            // Clear previous content
+            chineseDiv.innerHTML = '';
+            englishDiv.innerHTML = '';
+            
+            // Split into paragraphs and create elements with rich text support
+            const chineseParagraphs = original.split('\n');
+            const englishParagraphs = translated.split('\n');
+            
+            chineseParagraphs.forEach(para => {
+                if (para.trim()) {
+                    const p = document.createElement('div');
+                    p.className = 'paragraph';
+                    p.innerHTML = para;
+                    chineseDiv.appendChild(p);
+                }
+            });
+            
+            englishParagraphs.forEach(para => {
+                if (para.trim()) {
+                    const p = document.createElement('div');
+                    p.className = 'paragraph';
+                    p.innerHTML = para;
+                    englishDiv.appendChild(p);
+                }
+            });
+        }
+
+        function downloadTranslation() {
+            if (!currentTranslation) {
+                showNotification('No translation available to download', true);
+                return;
+            }
+
+            const content = {
+                original: currentTranslation.original,
+                translated: currentTranslation.translated,
+                timestamp: new Date().toISOString()
+            };
+
+            // Create text content with formatting
+            const textContent = `
+Chinese to English Translation
+Generated: ${new Date().toLocaleString()}
+
+ORIGINAL CHINESE TEXT:
+${content.original}
+
+ENGLISH TRANSLATION:
+${content.translated}
+            `;
+
+            // Create and trigger download
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `translation_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Translation downloaded successfully');
+        }
+
+        // File selection handler
+        document.getElementById('pdfFile').addEventListener('change', function(e) {
+            if (e.target.files[0]) {
+                const filename = e.target.files[0].name;
+                showNotification(`Selected file: ${filename}`);
+                updateStatus('upload');
+            }
+        });
+
+        // Enable rich text editing
+        function enableRichTextEditing() {
+            const editableElements = document.querySelectorAll('[contenteditable="true"]');
+            
+            editableElements.forEach(element => {
+                element.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const text = e.clipboardData.getData('text/plain');
+                    document.execCommand('insertText', false, text);
+                });
+            });
+        }
+
+        // System status check
+        function checkSystemStatus() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    const systemStatus = document.getElementById('systemStatus');
+                    if (data.status === 'ready') {
+                        systemStatus.innerHTML = `
+                            <i class="fas fa-circle" style="color: var(--success-color)"></i>
+                            System Ready
+                        `;
+                        systemStatus.style.backgroundColor = '#DCFCE7';
+                    } else {
+                        systemStatus.innerHTML = `
+                            <i class="fas fa-circle" style="color: var(--error-color)"></i>
+                            System Offline
+                        `;
+                        systemStatus.style.backgroundColor = '#FEE2E2';
+                    }
+                })
+                .catch(() => {
+                    const systemStatus = document.getElementById('systemStatus');
+                    systemStatus.innerHTML = `
+                        <i class="fas fa-circle" style="color: var(--error-color)"></i>
+                        System Error
+                    `;
+                    systemStatus.style.backgroundColor = '#FEE2E2';
+                });
+        }
+
+        // Add copy functionality
+        function addCopyButtons() {
+            const textPanels = document.querySelectorAll('.text-panel');
+            
+            textPanels.forEach(panel => {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'btn btn-secondary copy-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                
+                copyBtn.addEventListener('click', () => {
+                    const textContent = panel.querySelector('.text-content');
+                    navigator.clipboard.writeText(textContent.innerText)
+                        .then(() => showNotification('Text copied to clipboard'))
+                        .catch(() => showNotification('Failed to copy text', true));
+                });
+                
+                panel.appendChild(copyBtn);
+            });
+        }
+
+        // Initialize everything when the page loads
+        window.addEventListener('load', () => {
+            enableRichTextEditing();
+            checkSystemStatus();
+            addCopyButtons();
+            
+            // Check system status periodically
+            setInterval(checkSystemStatus, 30000); // Every 30 seconds
+        });
+    </script>
+</body>
+</html>
