@@ -28,6 +28,7 @@ A comprehensive web application that provides high-quality Chinese to English tr
 
 ![Screenshot of the Chinese to English PDF Translator](https://github.com/sreeraman17/ChineseToEnglish/blob/main/screenshot.jpg)
 
+Watch a demo video here https://www.loom.com/share/d580901a8f174d4b91880a17a217af21?sid=83d60034-1d48-444b-a77a-16721e4fdb08
 
 ## ✨ Key Features
 - 🎭 **Drag & Drop**: Toss your PDFs into our translator like a boss
