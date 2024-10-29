@@ -6,6 +6,10 @@
 
 Say goodbye to language barriers! Our Chinese to English PDF Translator is your magical bridge between Chinese documents and English understanding. With a sleek web interface that's as easy as drag-and-drop, you'll be translating documents faster than you can say "你好"!
 
+## Screenshot
+
+![Screenshot of the Chinese to English PDF Translator](https://github.com/sreeraman17/ChineseToEnglish/blob/main/screenshot.jpg)
+
 ### ✨ Key Features
 
 - 🎭 **Drag & Drop Magic**: Toss your PDFs into our translator like a boss
