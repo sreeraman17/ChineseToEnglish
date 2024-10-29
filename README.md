@@ -39,6 +39,7 @@ A comprehensive web application that provides high-quality Chinese to English tr
 - 🚀 **High-Quality Translation**: Powered by Qwen 2.5 model
 - 💾 **Smart Caching**: Improved performance for repeated content
 - 📝 **Document Optimization**: Special handling for formal texts
+- 📋 **Support files**: Check Input files for sample Chinese and English Documents (under Supporting files.zip)
 
 ## 💻 System Requirements
 - 🖥️ **CPU**: 8+ cores recommended
@@ -50,7 +51,6 @@ A comprehensive web application that provides high-quality Chinese to English tr
 
 ### Prerequisites
 - Python 3.8+
-- Node.js and npm
 - Docker (needed for Ollama OpenUI)
 
 
